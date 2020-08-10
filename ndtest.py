@@ -1,4 +1,3 @@
-from __future__ import division
 import numpy as np
 from numpy import random
 from scipy.spatial.distance import pdist, cdist
@@ -28,15 +27,20 @@ def ks2d2s(x1, y1, x2, y2, nboot=None, extra=False):
 
     Notes
     -----
-    This is the two-sided K-S test. Small p-values means that the two samples are significantly different. Note that the p-value is only an approximation as the analytic distribution is unkonwn. The approximation is accurate enough when N > ~20 and p-value < ~0.20 or so. When p-value > 0.20, the value may not be accurate, but it certainly implies that the two samples are not significantly different. (cf. Press 2007)
+    This is the two-sided K-S test. Small p-values means that the two samples are significantly different. Note that the
+    p-value is only an approximation as the analytic distribution is unknown. The approximation is accurate enough when
+    N > ~20 and p-value < ~0.20 or so. When p-value > 0.20, the value may not be accurate, but it certainly implies that
+    the two samples are not significantly different. (cf. Press 2007)
 
     References
     ----------
-    Peacock, J.A. 1983, Two-Dimensional Goodness-of-Fit Testing in Astronomy, Monthly Notices of the Royal Astronomical Society, vol. 202, pp. 615-627
-    Fasano, G. and Franceschini, A. 1987, A Multidimensional Version of the Kolmogorov-Smirnov Test, Monthly Notices of the Royal Astronomical Society, vol. 225, pp. 155-170
+    Peacock, J.A. 1983, Two-Dimensional Goodness-of-Fit Testing in Astronomy, Monthly Notices of the Royal Astronomical
+    Society, vol. 202, pp. 615-627
+    Fasano, G. and Franceschini, A. 1987, A Multidimensional Version of the Kolmogorov-Smirnov Test, Monthly Notices of
+    the Royal Astronomical Society, vol. 225, pp. 155-170
     Press, W.H. et al. 2007, Numerical Recipes, section 14.8
-
     '''
+
     assert (len(x1) == len(y1)) and (len(x2) == len(y2))
     n1, n2 = len(x1), len(x2)
     D = avgmaxdist(x1, y1, x2, y2)
