@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from numpy import random
+
 from scipy.spatial.distance import pdist, cdist
 from scipy.stats import kstwobign, pearsonr
 from scipy.stats import genextreme
@@ -59,10 +59,10 @@ def ks2d2s(x1, y1, x2, y2, nboot=None, extra=False):
         y = np.concatenate([y1, y2])
         d = np.empty(nboot, 'f')
         for i in range(nboot):
-            idx = random.choice(n, n, replace=True)
+            idx = np.random.choice(n, n, replace=True)
             ix1, ix2 = idx[:n1], idx[n1:]
-            #ix1 = random.choice(n, n1, replace=True)
-            #ix2 = random.choice(n, n2, replace=True)
+            #ix1 = np.random.choice(n, n1, replace=True)
+            #ix2 = np.random.choice(n, n2, replace=True)
             d[i] = avgmaxdist(x[ix1], y[ix1], x[ix2], y[ix2])
         p = np.sum(d > D).astype('f') / nboot
     if extra:
@@ -124,9 +124,9 @@ def estat(x, y, nboot=1000, replace=False, method='log', fitting=False):
     stack = np.vstack([x, y])
     stack = (stack - stack.mean(0)) / stack.std(0)
     if replace:
-        rand = lambda x: random.randint(x, size=x)
+        rand = lambda x: np.random.randint(x, size=x)
     else:
-        rand = random.permutation
+        rand = np.random.permutation
 
     en = energy(stack[:n], stack[n:], method)
     en_boot = np.zeros(nboot, 'f')
