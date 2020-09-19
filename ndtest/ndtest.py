@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
+from typing import List, Tuple, Optional, Iterable
 from scipy.spatial.distance import pdist, cdist
 from scipy.stats import kstwobign, pearsonr
 from scipy.stats import genextreme
@@ -8,7 +9,12 @@ from scipy.stats import genextreme
 __all__ = ['ks2d2s', 'estat', 'estat2d']
 
 
-def ks2d2s(x1, y1, x2, y2, nboot=None, extra=False):
+def ks2d2s(x1: np.ndarray,
+           y1: np.ndarray,
+           x2: np.ndarray,
+           y2: np.ndarray,
+           nboot: Optional[int] = None,
+           extra: Optional[bool] = False):
     '''Two-dimensional Kolmogorov-Smirnov test on two samples. 
     Parameters
     ----------
@@ -16,6 +22,8 @@ def ks2d2s(x1, y1, x2, y2, nboot=None, extra=False):
         Data of sample 1.
     x2, y2 : ndarray, shape (n2, )
         Data of sample 2. Size of two samples can be different.
+    nboot: int or None, Optional
+        The number of bootstrapping iterations to be performed
     extra: bool, optional
         If True, KS statistic is also returned. Default is False.
 
@@ -71,13 +79,51 @@ def ks2d2s(x1, y1, x2, y2, nboot=None, extra=False):
         return p
 
 
-def avgmaxdist(x1, y1, x2, y2):
-    D1 = maxdist(x1, y1, x2, y2)
-    D2 = maxdist(x2, y2, x1, y1)
-    return (D1 + D2) / 2
+def avgmaxdist(x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray) -> float:
+    """
+    Find the average maximum distance between the two maximal distances calculated using maxdist
+
+    Parameters
+    ----------
+    x1: 1D numpy array of floats
+        The x co-ordinate of all the points for set 1
+    y1: 1D numpy array of floats
+        The y co-ordinate of all the points for set 1
+    x2: 1D numpy array of floats
+        The x co-ordinate of all the points for set 2
+    y2: 1D numpy array of floats
+        The y co-ordinate of all the points for set 2
+
+    Returns
+    -------
+    distance: float
+        The average maximal distance
+
+    """
+    d1 = maxdist(x1, y1, x2, y2)
+    d2 = maxdist(x2, y2, x1, y1)
+    return (d1 + d2) / 2
 
 
-def maxdist(x1, y1, x2, y2):
+def maxdist(x1: np.ndarray, y1: np.ndarray, x2: np.ndarray, y2: np.ndarray) -> float:
+    """
+
+    Parameters
+    ----------
+    x1: 1D numpy array of floats
+        The x co-ordinate of all the points for set 1
+    y1: 1D numpy array of floats
+        The y co-ordinate of all the points for set 1
+    x2: 1D numpy array of floats
+        The x co-ordinate of all the points for set 2
+    y2: 1D numpy array of floats
+        The y co-ordinate of all the points for set 2
+
+    Returns
+    -------
+    maximum_distance: float
+
+    """
     n1 = len(x1)
     D1 = np.empty((n1, 4))
     for i in range(n1):
@@ -93,8 +139,28 @@ def maxdist(x1, y1, x2, y2):
     return max(dmin, dmax)
 
 
-def quadct(x, y, xx, yy):
-    n = len(xx)
+def quadct(x: float, y: float, xx: np.ndarray, yy: np.ndarray) -> Tuple[float, float, float, float]:
+    """
+    Find the proportion of the sample points in each quadrant compared to the chosen point
+
+    Parameters
+    ----------
+    x: float
+        The x co-ordinate of the chosen point
+    y: float
+        The y co-ordinate of the chosen point
+    xx: 1D numpy array of floats
+        The x co-ordinate of all the points
+    yy: 1D numpy array of floats
+        The y co-ordinate of all the points
+
+    Returns
+    -------
+    quadrant_values: tuple of floats
+        The proportions of the sample points in each quadrant compared to the chosen point
+
+    """
+    n = xx.shape[0]
     ix1, ix2 = xx <= x, yy <= y
     a = np.sum(ix1 & ix2) / n
     b = np.sum(ix1 & ~ix2) / n
@@ -107,9 +173,15 @@ def estat2d(x1, y1, x2, y2, **kwds):
     return estat(np.c_[x1, y1], np.c_[x2, y2], **kwds)
 
 
-def estat(x, y, nboot=1000, replace=False, method='log', fitting=False):
+def estat(x: Iterable[float],
+          y: Iterable[float],
+          nboot: Optional[int] = 1000,
+          replace: Optional[bool] = False,
+          method: Optional[str] = 'log',
+          fitting: Optional[bool] = False) -> Tuple:
     '''
     Energy distance statistics test.
+
     Reference
     ---------
     Aslan, B, Zech, G (2005) Statistical energy as a tool for binning-free
@@ -118,8 +190,8 @@ def estat(x, y, nboot=1000, replace=False, method='log', fitting=False):
     Szekely, G, Rizzo, M (2014) Energy statistics: A class of statistics
       based on distances. J Stat Planning & Infer 143: 1249-1272
     Brian Lau, multdist, https://github.com/brian-lau/multdist
-
     '''
+
     n, N = len(x), len(x) + len(y)
     stack = np.vstack([x, y])
     stack = (stack - stack.mean(0)) / stack.std(0)
@@ -143,7 +215,7 @@ def estat(x, y, nboot=1000, replace=False, method='log', fitting=False):
         return p, en, en_boot
 
 
-def energy(x, y, method='log'):
+def energy(x: List[float], y: List[float], method: Optional[str] = 'log') -> float:
     dx, dy, dxy = pdist(x), pdist(y), cdist(x, y)
     n, m = len(x), len(y)
     if method == 'log':
